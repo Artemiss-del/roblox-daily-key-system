@@ -1,0 +1,25 @@
+name: Daily Key Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs at midnight UTC every day
+
+jobs:
+  update-key:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Generate new key
+      run: |
+        # Generate a random 16-character hexadecimal key
+        NEW_KEY=$(openssl rand -hex 16)
+        echo "{ \"daily_key\": \"$NEW_KEY\" }" > key.json
+        
+        # Configure Git to commit and push the change
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add key.json
+        git commit -m "Update daily key"
+        git push
